@@ -9,6 +9,10 @@
   "author": "Aurélien Loyer",
   "license": "ISC",
   "dependencies": {
+    "coffee-script": "^1.12.2",
+    "connect": "^3.5.0",
+    "express": "^4.14.0",
+    "express.io": "^1.1.13",
     "mqtt": "^2.1.3"
   }
 }

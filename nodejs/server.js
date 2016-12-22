@@ -1,6 +1,19 @@
 const mqtt_url = 'mqtt://test.mosquitto.org'
+const port = 7076;
+
 const mqtt = require('mqtt')  
 const client = mqtt.connect(mqtt_url)
+const app = require('express.io')()
+
+
+app.http().io()
+
+app.get('/', function(req, res) {
+    res.sendfile(__dirname +'/public'+ '/index.html')
+})
+
+app.listen(port);
+console.log('Server listen on port : '+port);
 
 client.on('connect', function () {
     //Connexion ok
@@ -16,17 +29,18 @@ client.on('connect', function () {
 })
 
 client.on('message', (topic, message) => { 
+    message = message.toString();
     //A la reception d'un message on switch sur le topic 
     switch (topic) {
         case 'presence':
             console.log(topic +' : '+ message)
             break;
-        case 'test':
+        case 'temp/random':
             console.log(topic +' : '+ message)
+            app.io.broadcast('temp/random', message)
             break;
         default :
             console.log(topic +' : '+ message)
             break;
     }
-
 })

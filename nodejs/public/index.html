@@ -1,0 +1,25 @@
+<html>
+    <head>
+        <title></title>
+        <script src="/socket.io/socket.io.js"></script>
+    </head>
+    <body>
+        <h1>MQTT NodeJS client</h1>
+
+        <div id="temp"></div>
+
+
+        <script>
+            io = io.connect()
+
+            // Send the ready event.
+            io.emit('connected')
+
+            // Listen for the  event.
+            io.on('temp/random', function(message) {
+                console.log(message);
+                document.getElementById("temp").innerText = message;
+            })
+        </script>
+    </body>
+</html>
