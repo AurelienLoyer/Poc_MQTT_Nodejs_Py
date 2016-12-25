@@ -3,41 +3,58 @@ const port = 7076;
 
 const mqtt = require('mqtt')  
 const client = mqtt.connect(mqtt_url)
-const app = require('express.io')()
 
+var express = require('express');  
+var app = express();  
+var server = require('http').createServer(app);  
+var io = require('socket.io')(server);
 
-app.http().io()
+app.get('/', function(req, res,next) {  
+    res.sendfile(__dirname +'/public'+ '/index.html');
+});
 
-app.get('/', function(req, res) {
-    res.sendfile(__dirname +'/public'+ '/index.html')
-})
+server.listen(port);  
 
-app.listen(port);
 console.log('Server listen on port : '+port);
 
-client.on('connect', function () {
-    //Connexion ok
-    console.log('Connexion au serveur mqtt : '+mqtt_url)
-    //On souscrit au topic presence et ...
-    client.subscribe('presence')
-    client.subscribe('test')
-    client.subscribe('temp/random')
+let ledStatus = 'OFF';
 
-    //On envoie un message sur ces topics
-    client.publish('presence', 'Hello toi ! :)')
-    client.publish('temp/random', '50')
+/**
+ * Code for Socket.io
+ */
+function sendLedStatus(message){
+    io.emit('io/iot/led', message)
+}
+io.on('connection', (c) => {
+    c.on('io/iot/led/switch', () => {
+        console.log('Revieved io/iot/led/switch')
+        ledStatus = ledStatus === 'OFF' ? 'ON' : 'OFF';
+        client.publish('iot/led', ledStatus)
+    })
+    c.emit('io/iot/led', ledStatus)
+})
+
+
+
+/**
+ * Code For MQTT
+ */
+client.on('connect', function () {
+    console.log('Connexion au serveur mqtt : ' + mqtt_url)
+    client.subscribe('iot/led')
+    client.subscribe('temp/random')
 })
 
 client.on('message', (topic, message) => { 
     message = message.toString();
-    //A la reception d'un message on switch sur le topic 
     switch (topic) {
-        case 'presence':
+        case 'iot/led':
             console.log(topic +' : '+ message)
+            ledStatus = message;
+            sendLedStatus(message);
             break;
         case 'temp/random':
-            console.log(topic +' : '+ message)
-            app.io.broadcast('temp/random', message)
+            console.log(topic +' : '+ message)            
             break;
         default :
             console.log(topic +' : '+ message)
