@@ -1,0 +1,32 @@
+<html>
+    <head>
+        <title></title>
+        <script src="/socket.io/socket.io.js"></script>
+    </head>
+    <body>
+        <h1>MQTT NodeJS client</h1>
+        <svg height="100" width="100">
+            <circle cx="50" cy="50" r="40" stroke="black" stroke-width="3" fill="grey" />
+        </svg>    
+        <div id="led"></div>
+        <button> Switch On/Off LED </button>
+
+        <script>
+            io = io.connect()
+
+            // Send the ready event.
+            io.emit('connected')
+
+            // Listen for the  event.
+            io.on('io/iot/led', function(message) {
+                console.log(message);
+                document.querySelector('circle').style.fill = message === 'ON' ? 'yellow' : 'grey';
+            })
+
+            document.querySelector('button').addEventListener('click', () => {
+                console.log('We clicked to the button')
+                io.emit('io/iot/led/switch')
+            });
+        </script>
+    </body>
+</html>

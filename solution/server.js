@@ -4,10 +4,10 @@ const port = 7076;
 const mqtt = require('mqtt')  
 const client = mqtt.connect(mqtt_url)
 
-var express = require('express');  
-var app = express();  
-var server = require('http').createServer(app);  
-var io = require('socket.io')(server);
+const express = require('express');  
+const app = express();  
+const server = require('http').createServer(app);  
+const io = require('socket.io')(server);
 
 app.get('/', function(req, res,next) {  
     res.sendfile(__dirname +'/public'+ '/index.html');
@@ -18,6 +18,7 @@ server.listen(port);
 console.log('Server listen on port : '+port);
 
 let ledStatus = 'OFF';
+
 
 /**
  * Code for Socket.io
@@ -37,12 +38,11 @@ io.on('connection', (c) => {
 
 
 /**
- * Code For MQTT
+ * Code for MQTT connection
  */
 client.on('connect', function () {
     console.log('Connexion au serveur mqtt : ' + mqtt_url)
-    client.subscribe('iot/led')
-    client.subscribe('temp/random')
+    client.subscribe('iot/led');
 })
 
 client.on('message', (topic, message) => { 
@@ -52,9 +52,6 @@ client.on('message', (topic, message) => {
             console.log(topic +' : '+ message)
             ledStatus = message;
             sendLedStatus(message);
-            break;
-        case 'temp/random':
-            console.log(topic +' : '+ message)            
             break;
         default :
             console.log(topic +' : '+ message)
