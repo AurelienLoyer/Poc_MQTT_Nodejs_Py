@@ -4,6 +4,7 @@ import paho.mqtt.client as mqtt
 def switchLight(state):
     print('switch light')
     # Send message to MQTT clients. Il faut envoyer les chaines de caracteres ON/OFF
+    # client.publish("iot/led", "OFF")
 
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
